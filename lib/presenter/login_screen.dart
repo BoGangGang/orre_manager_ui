@@ -28,32 +28,82 @@ class LoginScreenWidget extends ConsumerWidget {
 class _LoginScreenBody extends ConsumerWidget {
   TextEditingController _idController = TextEditingController();
   TextEditingController _pwController = TextEditingController();
-  
+
   void loginProcess(WidgetRef ref) {
-    ref.read(loginProvider.notifier).subscribeToLoginData(ref.context, _idController.text);
-    ref.read(loginProvider.notifier).sendLoginData(ref.context, _idController.text, _pwController.text);
+    ref
+        .read(loginProvider.notifier)
+        .subscribeToLoginData(ref.context, _idController.text);
+    ref
+        .read(loginProvider.notifier)
+        .sendLoginData(ref.context, _idController.text, _pwController.text);
     // ref.read(loginProvider.notifier).unSubscribeLoginData();
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('ORRE(Manager) Login'),
-      ),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: Text(
+                "로그인",
+                style: TextStyle(
+                  fontFamily: 'Dovemayo_gothic',
+                  fontSize: 32,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            Image.asset(
+              "assets/images/waveform/wave_shadow.png",
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.cover,
+            ),
+            Image.asset(
+              "assets/images/waveform/wave.png",
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.cover,
+            ),
             TextField(
               controller: _idController,
-              decoration: InputDecoration(labelText: 'Admin PhoneNumber'),
+              decoration: InputDecoration(
+                labelText: '전화번호',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(
+                    color: Color(0xFF77AAD8),
+                    width: 3.0,
+                  ),
+                ),
+                labelStyle: TextStyle(
+                  fontFamily: 'Dovemayo_gothic',
+                  fontSize: 20,
+                  color: Color(0xFFD9D9D9),
+                ),
+              ),
             ),
             SizedBox(height: 20),
             TextField(
               controller: _pwController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                labelText: '비밀번호',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(
+                    color: Color(0xFF77AAD8),
+                    width: 3.0,
+                  ),
+                ),
+                labelStyle: TextStyle(
+                  fontFamily: 'Dovemayo_gothic',
+                  fontSize: 20,
+                  color: Color(0xFFD9D9D9),
+                ),
+              ),
               obscureText: true,
             ),
             SizedBox(height: 20),
@@ -61,12 +111,20 @@ class _LoginScreenBody extends ConsumerWidget {
               onPressed: () => loginProcess(ref),
               child: Text('Login'),
             ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                height: 20,
+                color: Color(0xFF72AAD8),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
-
 }
 
 class _LoadingScreen extends StatelessWidget {
