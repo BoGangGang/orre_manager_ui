@@ -51,17 +51,14 @@ class LoginDataNotifier extends StateNotifier<LoginData?> {
           showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                  title: Text('Login Succeeded'),
-                  content: Text('Welcome!'),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('OK'),
-                    ),
-                  ]);
+              return AlertDialog(content: Text('로그인 성공!'), actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('확인'),
+                ),
+              ]);
             },
           );
         } else if (loginResponse.status == 'failure') {
