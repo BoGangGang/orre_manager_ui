@@ -8,6 +8,8 @@ import '../Model/login_data_model.dart';
 import '../Model/waiting_data_model.dart';
 import '../provider/waiting_provider.dart';
 
+import 'package:lite_rolling_switch/lite_rolling_switch.dart';
+
 class StoreScreenWidget extends ConsumerWidget {
   final LoginData loginResponse;
   StoreScreenWidget({required this.loginResponse});
@@ -39,9 +41,11 @@ class _StoreScreenBody extends ConsumerWidget {
   WaitingData? currentWaitingData;
   bool isSubscribed = false;
 
+  var switchValue = true; // 스위치를 위한 부울변수, true 일때 웨이팅 활성화
+
   _StoreScreenBody({required this.loginData});
 
-  void subscribeProcess(WidgetRef ref, BuildContext context){
+  void subscribeProcess(WidgetRef ref, BuildContext context) {
     if (currentWaitingData == null && !isSubscribed) {
       storeCode = loginData!.storeCode;
       final waitingNotifier = ref.read(waitingProvider.notifier);
@@ -60,10 +64,10 @@ class _StoreScreenBody extends ConsumerWidget {
     subscribeProcess(ref, context);
 
     // 웨이팅정보요청을 build될 때 마다 보내면, 무한루프 즉 BadStateException에 빠지는 것을 확인했음.
-    // 따라서.. 수동으로 1회 정보요청을 
+    // 따라서.. 수동으로 1회 정보요청을
     if (currentWaitingData == null) {
       return Scaffold(
-        appBar: AppBar( 
+        appBar: AppBar(
           title: Text('Store Page'),
         ),
         body: Center(
@@ -77,7 +81,8 @@ class _StoreScreenBody extends ConsumerWidget {
               ElevatedButton(
                 onPressed: () {
                   ref.read(waitingProvider.notifier).sendWaitingData(storeCode);
-                }, child: Text("웨이팅정보 수신하기"),
+                },
+                child: Text("웨이팅정보 수신하기"),
               ),
             ],
           ),
@@ -86,24 +91,119 @@ class _StoreScreenBody extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Store Page'),
-      ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Consumer(
-                builder: (context, ref, child) {
-                  print('waitingData에 변동점이 생겼으므로 리빌드합니다.');
-                  ref.watch(waitingProvider);
-                  final int currentWaitingCount = ref.watch(waitingProvider.select((data) => data?.teamInfoList.length ?? 0));
-                  return Text(
-                    '현재 대기 팀수 : $currentWaitingCount',
-                    // ignore: prefer_const_constructors
-                    style: TextStyle(fontSize: 24),
-                  );
-                },
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * 0.23,
+              decoration: BoxDecoration(
+                color: Color(0xFF72AAD8),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 50, right: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end, // 오른쪽으로 정렬
+                      children: [
+                        Text(
+                          '웨이팅 설정',
+                          style: TextStyle(
+                            fontFamily: 'Dovemayo_gothic',
+                            fontSize: 24,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 10), // 간격 조절
+                        LiteRollingSwitch(
+                          //initial value
+                          value: switchValue,
+                          textOn: 'ON',
+                          textOff: 'OFF',
+                          colorOn: Color(0xFFE6F4FE),
+                          colorOff: Color(0xFFDFDFDF),
+                          textOnColor: Color(0xFF72AAD8),
+                          textOffColor: Colors.white,
+                          iconOn: Icons.done,
+                          iconOff: Icons.remove_circle_outline,
+                          textSize: 16.0,
+                          onTap: () {}, // null 값을 전달하여 콜백 함수를 사용하지 않음
+                          onDoubleTap: () {}, // null 값을 전달하여 콜백 함수를 사용하지 않음
+                          onSwipe: () {}, // null 값을 전달하여 콜백 함수를 사용하지 않음
+                          onChanged: (bool state) {
+                            //Use it to manage the different states
+                            print('Current State of SWITCH IS: $state');
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Consumer(
+                          builder: (context, ref, child) {
+                            print('waitingData에 변동점이 생겼으므로 리빌드합니다.');
+                            ref.watch(waitingProvider);
+                            final int currentWaitingCount = ref.watch(
+                              waitingProvider.select(
+                                  (data) => data?.teamInfoList.length ?? 0),
+                            );
+                            return Padding(
+                              padding: EdgeInsets.only(left: 20),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    '현재 대기 팀수',
+                                    style: TextStyle(
+                                      fontFamily: 'Dovemayo_gothic',
+                                      fontSize: 24,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    '    $currentWaitingCount',
+                                    style: TextStyle(
+                                      fontFamily: 'Dovemayo_gothic',
+                                      fontSize: 36,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    ' 팀',
+                                    style: TextStyle(
+                                      fontFamily: 'Dovemayo_gothic',
+                                      fontSize: 24,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(right: 20),
+                        child: InkWell(
+                          onTap: () {
+                            // 웨이팅 페이지로 이동
+                          },
+                          child: Image.asset(
+                              'assets/images/button/waiting adding.png'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             // 여기서 ListView 를 사용하도록 수정합니다.
             Expanded(
@@ -136,7 +236,8 @@ class _StoreScreenBody extends ConsumerWidget {
 
                   if (team.entryTime != null) {
                     timeRemaining = team.entryTime!.difference(DateTime.now());
-                    remainingTimeString = '${timeRemaining.inHours.toString().padLeft(2, '0')}:${(timeRemaining.inMinutes % 60).toString().padLeft(2, '0')}';
+                    remainingTimeString =
+                        '${timeRemaining.inHours.toString().padLeft(2, '0')}:${(timeRemaining.inMinutes % 60).toString().padLeft(2, '0')}';
                   } else {
                     remainingTimeString = 'Unknown';
                   }
@@ -153,7 +254,8 @@ class _StoreScreenBody extends ConsumerWidget {
                           ),
                         ),
                         Text('연락처 : ${team.phoneNumber}'),
-                        if(remainingTimeString != 'Unknown') Text('마감까지 남은 시간: $remainingTimeString'), 
+                        if (remainingTimeString != 'Unknown')
+                          Text('마감까지 남은 시간: $remainingTimeString'),
                       ],
                     ),
                     trailing: Row(
@@ -162,21 +264,21 @@ class _StoreScreenBody extends ConsumerWidget {
                         ElevatedButton(
                           onPressed: () {
                             ref.read(waitingProvider.notifier).sendCallRequest(
-                              context,
-                              team.waitingNumber,
-                              storeCode,
-                              minutesToAdd,
-                            );
+                                  context,
+                                  team.waitingNumber,
+                                  storeCode,
+                                  minutesToAdd,
+                                );
                           },
                           child: const Text('Call Guest'),
                         ),
                         const SizedBox(width: 8),
                         ElevatedButton(
                           onPressed: () {
-                            ref.read(waitingProvider.notifier).sendNoShowMessage(
-                              storeCode,
-                              team.waitingNumber
-                            );
+                            ref
+                                .read(waitingProvider.notifier)
+                                .sendNoShowMessage(
+                                    storeCode, team.waitingNumber);
                           },
                           child: const Text('Delete Waiting'),
                         ),
@@ -188,52 +290,29 @@ class _StoreScreenBody extends ConsumerWidget {
             ),
 
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly, // 가로로 공간을 균등하게 배치합니다.
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceEvenly, // 가로로 공간을 균등하게 배치합니다.
               children: [
                 ElevatedButton(
                   onPressed: () {
                     ref.read(waitingProvider.notifier).sendCallRequest(
-                      context, 
-                      currentWaitingData!.teamInfoList[0].waitingNumber, 
-                      storeCode, 
-                      minutesToAdd
-                    );
+                        context,
+                        currentWaitingData!.teamInfoList[0].waitingNumber,
+                        storeCode,
+                        minutesToAdd);
                   },
                   child: Text('손님 호출하기'),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (BuildContext context) => TableManagementScreen(loginResponse: loginData)
-                      )
-                    );
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            TableManagementScreen(loginResponse: loginData)));
                   },
                   child: Text('좌석 관리페이지 오픈하기'),
                 ),
               ],
-              ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     ref.read(waitingProvider.notifier).sendCallRequest(
-            //       context, 
-            //       currentWaitingData!.teamInfoList[0].waitingTeam, 
-            //       storeCode, 
-            //       minutesToAdd
-            //     );
-            //   },
-            //   child: Text('손님 호출하기'),
-            // ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     Navigator.of(context).push(
-            //       MaterialPageRoute(
-            //         builder: (BuildContext context) => TableManagementScreen(loginResponse: loginData)
-            //       )
-            //     );
-            //   },
-            //   child: Text('좌석 관리페이지 오픈하기');
-            // )
+            ),
           ],
         ),
       ),
@@ -241,7 +320,29 @@ class _StoreScreenBody extends ConsumerWidget {
   }
 }
 
+class CustomSwitch extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool>? onChanged;
 
+  const CustomSwitch({
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.0),
+        color: value ? Color(0xFF72AAD8) : Color(0xFFDFDFDF),
+      ),
+      child: Switch(
+        value: value,
+        onChanged: onChanged,
+      ),
+    );
+  }
+}
 
 class _LoadingScreen extends StatelessWidget {
   @override
@@ -274,6 +375,3 @@ class _ErrorScreen extends StatelessWidget {
     );
   }
 }
-
-
-
