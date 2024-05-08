@@ -9,6 +9,7 @@ import '../Model/waiting_data_model.dart';
 import '../provider/waiting_provider.dart';
 
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
+import 'waiting_adding_screen.dart';
 
 class StoreScreenWidget extends ConsumerWidget {
   final LoginData loginResponse;
@@ -163,15 +164,15 @@ class _StoreScreenBody extends ConsumerWidget {
                                     '현재 대기 팀수',
                                     style: TextStyle(
                                       fontFamily: 'Dovemayo_gothic',
-                                      fontSize: 24,
+                                      fontSize: 32,
                                       color: Colors.white,
                                     ),
                                   ),
                                   Text(
-                                    '    $currentWaitingCount',
+                                    '  $currentWaitingCount',
                                     style: TextStyle(
                                       fontFamily: 'Dovemayo_gothic',
-                                      fontSize: 36,
+                                      fontSize: 42,
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -180,7 +181,7 @@ class _StoreScreenBody extends ConsumerWidget {
                                     ' 팀',
                                     style: TextStyle(
                                       fontFamily: 'Dovemayo_gothic',
-                                      fontSize: 24,
+                                      fontSize: 32,
                                       color: Colors.white,
                                     ),
                                   ),
@@ -194,7 +195,11 @@ class _StoreScreenBody extends ConsumerWidget {
                         padding: EdgeInsets.only(right: 20),
                         child: InkWell(
                           onTap: () {
-                            // 웨이팅 페이지로 이동
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => WaitingAddingScreen()),
+                            );
                           },
                           child: Image.asset(
                               'assets/images/button/waiting adding.png'),
@@ -242,48 +247,94 @@ class _StoreScreenBody extends ConsumerWidget {
                     remainingTimeString = 'Unknown';
                   }
 
-                  return ListTile(
-                    title: Text('Reservation Number: ${team.waitingNumber}'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '상태 : $guestStatus',
-                          style: TextStyle(
-                            color: textColor,
+                  return Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: IconButton(
+                              onPressed: () {
+                                ref
+                                    .read(waitingProvider.notifier)
+                                    .sendNoShowMessage(
+                                        storeCode, team.waitingNumber);
+                              },
+                              icon:
+                                  Icon(Icons.delete, color: Color(0xFFDFDFDF)),
+                              iconSize: 30,
+                            ),
                           ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            flex: 3, // 더 넓은 공간을 차지하도록 설정
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      '대기번호 ${team.waitingNumber}번',
+                                      style: TextStyle(
+                                        fontFamily: 'Dovemayo_gothic',
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                    SizedBox(width: 20),
+                                    Text(
+                                      '${team.personNumber}명',
+                                      style: TextStyle(
+                                        fontFamily: 'Dovemayo_gothic',
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  '상태 : $guestStatus',
+                                  style: TextStyle(
+                                    fontFamily: 'Dovemayo_gothic',
+                                    fontSize: 16,
+                                    color: textColor,
+                                  ),
+                                ),
+                                Text(
+                                  '${team.phoneNumber}',
+                                  style: TextStyle(
+                                    fontFamily: 'Dovemayo_gothic',
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: IconButton(
+                              onPressed: () {
+                                ref
+                                    .read(waitingProvider.notifier)
+                                    .sendCallRequest(
+                                      context,
+                                      team.waitingNumber,
+                                      storeCode,
+                                      minutesToAdd,
+                                    );
+                              },
+                              icon: Icon(Icons.notifications,
+                                  color: Color(0xFF72AAD8)),
+                              iconSize: 30,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Divider(
+                          color: Color(0xFFDFDFDF),
+                          thickness: 1,
                         ),
-                        Text('연락처 : ${team.phoneNumber}'),
-                        if (remainingTimeString != 'Unknown')
-                          Text('마감까지 남은 시간: $remainingTimeString'),
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            ref.read(waitingProvider.notifier).sendCallRequest(
-                                  context,
-                                  team.waitingNumber,
-                                  storeCode,
-                                  minutesToAdd,
-                                );
-                          },
-                          child: const Text('Call Guest'),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            ref
-                                .read(waitingProvider.notifier)
-                                .sendNoShowMessage(
-                                    storeCode, team.waitingNumber);
-                          },
-                          child: const Text('Delete Waiting'),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   );
                 },
               ),
