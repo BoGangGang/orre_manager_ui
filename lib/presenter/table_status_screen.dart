@@ -33,11 +33,11 @@ class _TableManagementBody extends ConsumerWidget {
   final LoginData loginData;
   late int storeCode;
   RestaurantTable? restaurantTable;
-  bool isSubscribed = false;  
+  bool isSubscribed = false;
 
   _TableManagementBody({required this.loginData});
 
-  void subscribeProcess(WidgetRef ref, BuildContext context){
+  void subscribeProcess(WidgetRef ref, BuildContext context) {
     if (restaurantTable == null && !isSubscribed) {
       storeCode = loginData.storeCode;
       final restaurantTableNotifier = ref.read(tableProvider.notifier);
@@ -48,7 +48,7 @@ class _TableManagementBody extends ConsumerWidget {
       isSubscribed = true; // sendWaitingData가 한 번만 호출되도록 설정
     }
   }
-  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     restaurantTable = ref.watch(tableProvider);
@@ -59,12 +59,10 @@ class _TableManagementBody extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('TableManagement Screen'),
-      ),
       body: Center(
         child: Column(
           children: [
+            SizedBox(height: 60),
             SizedBox(
               width: double.infinity,
               child: Row(
@@ -74,14 +72,51 @@ class _TableManagementBody extends ConsumerWidget {
                     onPressed: () {
                       // '테이블 추가하기' 버튼 동작 정의
                     },
-                    child: Text('테이블 추가하기'),
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Color(0xFF72AAD8)),
+                    ),
+                    child: Text(
+                      '테이블 추가',
+                      style: TextStyle(
+                        fontFamily: 'Dovemayo_gothic',
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                   ElevatedButton(
                     onPressed: () {
                       // '테이블 삭제하기' 버튼 동작 정의
                     },
-                    child: Text('테이블 삭제하기'),
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Color(0xFF72AAD8))),
+                    child: Text(
+                      '테이블 삭제',
+                      style: TextStyle(
+                        fontFamily: 'Dovemayo_gothic',
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // '테이블 병합하기' 버튼 동작 정의
+                    },
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Color(0xFF72AAD8))),
+                    child: Text(
+                      '테이블 병합',
+                      style: TextStyle(
+                        fontFamily: 'Dovemayo_gothic',
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -89,12 +124,12 @@ class _TableManagementBody extends ConsumerWidget {
 
             Consumer(builder: (context, ref, child) {
               List<Seat> currentSeats = ref.watch(tableProvider)!.table;
-              
+
               return LayoutBuilder(
                 builder: (BuildContext context, BoxConstraints constraints) {
                   return SizedBox(
-                    width: constraints.maxWidth * 0.8, // 전체 너비의 80%
-                    height: constraints.maxWidth * 0.8, // 전체 너비의 80%
+                    width: constraints.maxWidth * 0.9,
+                    height: double.infinity,
                     child: GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
@@ -106,14 +141,21 @@ class _TableManagementBody extends ConsumerWidget {
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
                           onTap: () {
-                            _showTableInfoPopup(ref, context, currentSeats[index]);
+                            _showTableInfoPopup(
+                                ref, context, currentSeats[index]);
                           },
                           child: Container(
-                            color: currentSeats[index].tableStatus == 0 ? Colors.red : Colors.green, // 사용 가능 여부에 따라 색상 변경
+                            color: currentSeats[index].tableStatus == 0
+                                ? Color(0xFFE6F4FE)
+                                : Color(0xFF72AAD8), // 사용 가능 여부에 따라 색상 변경
                             child: Center(
                               child: Text(
                                 currentSeats[index].tableNumber.toString(),
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(
+                                  color: currentSeats[index].tableStatus == 0
+                                      ? Color(0xFFE6F4FE)
+                                      : Color(0xFFE6F4FE),
+                                ),
                               ),
                             ),
                           ),
@@ -144,12 +186,13 @@ class _TableManagementBody extends ConsumerWidget {
             children: [
               Text('Table Number: ${table.tableNumber}'),
               Text('Max Persons Per Table: ${table.maxPersonPerTable}'),
-              Text('Table Status: ${table.tableStatus == 0 ? '착석불가능' : '착석가능'}'),
+              Text(
+                  'Table Status: ${table.tableStatus == 0 ? '착석불가능' : '착석가능'}'),
               if (table.guestInfo != null) // 만약 guestInfo가 있다면 추가 정보 표시
                 Text('Guest Info: ${table.guestInfo.toString()}'),
               SizedBox(height: 10),
               // 숫자를 입력받는 TextField 추가
-              if (table.tableStatus == 0) 
+              if (table.tableStatus == 0)
                 TextField(
                   controller: _temp_waitingNumber,
                   keyboardType: TextInputType.number,
@@ -166,12 +209,18 @@ class _TableManagementBody extends ConsumerWidget {
                       if (table.tableStatus == 0) {
                         //Unlock Process
                         int waitingNumber =
-                            int.tryParse(_temp_waitingNumber.text) ?? 0; // 입력된 값을 정수로 변환
+                            int.tryParse(_temp_waitingNumber.text) ??
+                                0; // 입력된 값을 정수로 변환
                         ref.read(tableProvider.notifier).sendUnlockRequest(
-                            loginData.storeCode, table.tableNumber, waitingNumber, loginData.loginToken!);
+                            loginData.storeCode,
+                            table.tableNumber,
+                            waitingNumber,
+                            loginData.loginToken!);
                       } else {
                         ref.read(tableProvider.notifier).sendLockRequest(
-                            loginData.storeCode, table.tableNumber, loginData.loginToken!);
+                            loginData.storeCode,
+                            table.tableNumber,
+                            loginData.loginToken!);
                       }
                     },
                     child: Text(table.tableStatus == 0 ? '테이블 언락' : '테이블 락'),
@@ -191,17 +240,12 @@ class _TableManagementBody extends ConsumerWidget {
       },
     );
   }
-
 }
-
 
 class _LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('TableManagement Screen'),
-      ),
       body: Center(
         child: CircularProgressIndicator(),
       ),
@@ -217,9 +261,6 @@ class _ErrorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('TableManagement Screen'),
-      ),
       body: Center(
         child: Text('Error: $error'),
       ),

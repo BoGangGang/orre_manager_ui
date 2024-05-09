@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:orre_manager/presenter/CallButton.dart';
 import 'package:orre_manager/presenter/table_status_screen.dart';
 import 'package:orre_manager/provider/stomp_client_future_provider.dart';
-import 'package:stomp_dart_client/stomp.dart';
-import 'package:stomp_dart_client/stomp_frame.dart';
 import '../Model/login_data_model.dart';
 import '../Model/waiting_data_model.dart';
 import '../provider/waiting_provider.dart';
@@ -43,6 +42,7 @@ class _StoreScreenBody extends ConsumerWidget {
   bool isSubscribed = false;
 
   var switchValue = true; // 스위치를 위한 부울변수, true 일때 웨이팅 활성화
+  bool buttonPressed = false; // 알림버튼이 눌렸는지 확인할 변수
 
   _StoreScreenBody({required this.loginData});
 
@@ -63,6 +63,8 @@ class _StoreScreenBody extends ConsumerWidget {
 
     // 최초 빌드 시 한 번만 서브스크립션을 설정합니다.
     subscribeProcess(ref, context);
+
+    bool button_on_pressed = false;
 
     // 웨이팅정보요청을 build될 때 마다 보내면, 무한루프 즉 BadStateException에 빠지는 것을 확인했음.
     // 따라서.. 수동으로 1회 정보요청을
@@ -253,6 +255,7 @@ class _StoreScreenBody extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Expanded(
+                            flex: 1,
                             child: IconButton(
                               onPressed: () {
                                 ref
@@ -308,21 +311,14 @@ class _StoreScreenBody extends ConsumerWidget {
                               ],
                             ),
                           ),
+                          // 알람 버튼을 클릭하면, 해당 위치에 이미지와 타이머 뜨게 구현
                           Expanded(
-                            child: IconButton(
-                              onPressed: () {
-                                ref
-                                    .read(waitingProvider.notifier)
-                                    .sendCallRequest(
-                                      context,
-                                      team.waitingNumber,
-                                      storeCode,
-                                      minutesToAdd,
-                                    );
-                              },
-                              icon: Icon(Icons.notifications,
-                                  color: Color(0xFF72AAD8)),
-                              iconSize: 30,
+                            flex: 1,
+                            child: CallIconButton(
+                              waitingNumber: team.waitingNumber,
+                              storeCode: storeCode,
+                              minutesToAdd: minutesToAdd,
+                              ref: ref,
                             ),
                           ),
                         ],
@@ -366,30 +362,6 @@ class _StoreScreenBody extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class CustomSwitch extends StatelessWidget {
-  final bool value;
-  final ValueChanged<bool>? onChanged;
-
-  const CustomSwitch({
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.0),
-        color: value ? Color(0xFF72AAD8) : Color(0xFFDFDFDF),
-      ),
-      child: Switch(
-        value: value,
-        onChanged: onChanged,
       ),
     );
   }

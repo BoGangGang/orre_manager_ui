@@ -70,6 +70,10 @@ flutter:
     - assets/images/waveform/wave_shadow.png
     - assets/images/waveform/wave.png
     - assets/images/button/waiting adding.png
+    - assets/images/timer_images/timer1.png
+    - assets/images/timer_images/timer2.png
+    - assets/images/timer_images/timer3.png
+    - assets/images/timer_images/timer4.png
 
   fonts :
     - family: Dovemayo_gothic
