@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:orre_manager/Coding_references/login.dart';
 import 'package:orre_manager/presenter/store_screen.dart';
+import 'package:orre_manager/widget/popup.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 import '../Model/login_data_model.dart';
@@ -51,14 +52,8 @@ class LoginDataNotifier extends StateNotifier<LoginData?> {
           showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(content: Text('로그인 성공!'), actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('확인'),
-                ),
-              ]);
+              return CustomAlertDialog.build(
+                  context: context, title: '', text: '로그인 성공');
             },
           );
         } else if (loginResponse.status == 'failure') {
@@ -66,18 +61,10 @@ class LoginDataNotifier extends StateNotifier<LoginData?> {
           showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                title: Text('Login Failed'),
-                content: Text('Invalid ID or Password.'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('OK'),
-                  ),
-                ],
-              );
+              return CustomAlertDialog.build(
+                  context: context,
+                  title: '',
+                  text: '로그인 실패\nID 또는 PW를 확인하세요.');
             },
           );
         }

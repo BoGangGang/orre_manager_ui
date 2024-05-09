@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:orre_manager/Model/waiting_data_model.dart';
+import 'package:orre_manager/widget/popup.dart';
 import 'package:stomp_dart_client/stomp.dart';
 import 'package:stomp_dart_client/stomp_frame.dart';
 
@@ -45,14 +46,16 @@ class WaitingDataNotifier extends StateNotifier<WaitingData?> {
     } else {
       // 기존 state의 복사본을 만듭니다.
       WaitingData? currentState = state;
-      List<WaitingTeam> currentTeamInfoList = List.from(currentState!.teamInfoList);
-      if(currentState.teamInfoList.length == newState.teamInfoList.length) {
+      List<WaitingTeam> currentTeamInfoList =
+          List.from(currentState!.teamInfoList);
+      if (currentState.teamInfoList.length == newState.teamInfoList.length) {
         // 기존정보 갱신인 경우
         print('WaitingTeam 객체 하나하나 변경..');
 
         for (var newTeam in newState.teamInfoList) {
           // 동일한 waitingNumber를 가진 WaitingTeam을 찾습니다.
-          var existingTeamIndex = currentTeamInfoList.indexWhere((team) => team.waitingNumber == newTeam.waitingNumber);
+          var existingTeamIndex = currentTeamInfoList.indexWhere(
+              (team) => team.waitingNumber == newTeam.waitingNumber);
           if (existingTeamIndex != -1) {
             // 이미 기존 대기Team목록에 존재하는 경우 해당 항목을 새로운 값으로 업데이트합니다.
             currentTeamInfoList[existingTeamIndex] = WaitingTeam(
@@ -60,21 +63,24 @@ class WaitingDataNotifier extends StateNotifier<WaitingData?> {
               status: newTeam.status,
               phoneNumber: newTeam.phoneNumber,
               personNumber: newTeam.personNumber,
-              entryTime: currentTeamInfoList[existingTeamIndex].entryTime ?? newTeam.entryTime, // entryTime입력이 없을 경우에만 새 entryTime을 적용합니다.
+              entryTime: currentTeamInfoList[existingTeamIndex].entryTime ??
+                  newTeam.entryTime, // entryTime입력이 없을 경우에만 새 entryTime을 적용합니다.
             );
           } else {
             // 기존 대기 Team목록에 없는 경우 새로운 항목으로 추가합니다.
             currentTeamInfoList.add(newTeam);
           }
         }
-      } else if(currentState.teamInfoList.length > newState.teamInfoList.length) {
+      } else if (currentState.teamInfoList.length >
+          newState.teamInfoList.length) {
         // 삭제, 착석 등으로 웨이팅 정보가 사라졌을 때.
         print('WaitingTeam 객체 삭제..');
 
         List<int> deletedTeamIndexes = [];
 
         for (int i = 0; i < currentTeamInfoList.length; i++) {
-          var existingTeamIndex = newState.teamInfoList.indexWhere((team) => team.waitingNumber == currentTeamInfoList[i].waitingNumber);
+          var existingTeamIndex = newState.teamInfoList.indexWhere((team) =>
+              team.waitingNumber == currentTeamInfoList[i].waitingNumber);
           if (existingTeamIndex == -1) {
             // 삭제된 항목의 index를 기록합니다.
             deletedTeamIndexes.add(i);
@@ -85,11 +91,13 @@ class WaitingDataNotifier extends StateNotifier<WaitingData?> {
         for (int i = deletedTeamIndexes.length - 1; i >= 0; i--) {
           currentTeamInfoList.removeAt(deletedTeamIndexes[i]);
         }
-      } else if(currentState.teamInfoList.length < newState.teamInfoList.length) {
+      } else if (currentState.teamInfoList.length <
+          newState.teamInfoList.length) {
         print("신규 WaitingTeam 추가됨");
-        for(int i=0; i < newState.teamInfoList.length; i++){
-          var existingTeamIndex = currentTeamInfoList.indexWhere((team) => team.waitingNumber == newState.teamInfoList[i].waitingNumber);
-          if(existingTeamIndex == -1){
+        for (int i = 0; i < newState.teamInfoList.length; i++) {
+          var existingTeamIndex = currentTeamInfoList.indexWhere((team) =>
+              team.waitingNumber == newState.teamInfoList[i].waitingNumber);
+          if (existingTeamIndex == -1) {
             currentTeamInfoList.add(newState.teamInfoList[i]);
           }
         }
@@ -105,7 +113,6 @@ class WaitingDataNotifier extends StateNotifier<WaitingData?> {
       state = updatedState;
     }
   }
-
 
   void waitingData_CallBack(StompFrame? frame) {
     print('<WaitingData> 메세지 수신. 다음은 수신된 메세지입니다.');
@@ -179,21 +186,15 @@ class WaitingDataNotifier extends StateNotifier<WaitingData?> {
     updateState(newState);
 
     showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-              title: Text('손님 호출'),
-              content: (Text(
-                  '호출한 손님번호 : ${callGuestResponse.waitingTeam}\n입장마감시간 : $formattedTime')),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ]);
-        });
+      context: context,
+      builder: (context) {
+        return CustomAlertDialog.build(
+            context: context,
+            title: '손님 호출',
+            text:
+                '호출한 손님번호 : ${callGuestResponse.waitingTeam}\n입장마감시간 : $formattedTime');
+      },
+    );
   }
 
   void sendCallRequest(BuildContext context, int waitingNumber, int storeCode,
@@ -224,20 +225,10 @@ class WaitingDataNotifier extends StateNotifier<WaitingData?> {
             showDialog(
               context: context,
               builder: (context) {
-                return AlertDialog(
-                  title: Text('손님 호출'),
-                  content: Text(
-                    status ? '성공적으로 노쇼처리하였습니다.' : '오류가 발생하였습니다.',
-                  ),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('확인'),
-                    ),
-                  ],
-                );
+                return CustomAlertDialog.build(
+                    context: context,
+                    title: '손님 호출',
+                    text: status ? '성공적으로 노쇼처리하였습니다.' : '오류가 발생하였습니다.');
               },
             );
           });

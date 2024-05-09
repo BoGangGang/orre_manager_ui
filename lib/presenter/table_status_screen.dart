@@ -145,15 +145,17 @@ class _TableManagementBody extends ConsumerWidget {
                                 ref, context, currentSeats[index]);
                           },
                           child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10)),
                             color: currentSeats[index].tableStatus == 0
-                                ? Color(0xFFE6F4FE)
+                                ? Color(0xFFDFDFDF)
                                 : Color(0xFF72AAD8), // 사용 가능 여부에 따라 색상 변경
                             child: Center(
                               child: Text(
                                 currentSeats[index].tableNumber.toString(),
                                 style: TextStyle(
                                   color: currentSeats[index].tableStatus == 0
-                                      ? Color(0xFFE6F4FE)
+                                      ? Color(0xFF72AAD8)
                                       : Color(0xFFE6F4FE),
                                 ),
                               ),
