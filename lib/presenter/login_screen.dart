@@ -129,7 +129,7 @@ class _LoginScreenBody extends ConsumerWidget {
                     style: TextStyle(
                       fontFamily: 'Dovemayo_gothic',
                       fontSize: 24,
-                      color: Colors.black,
+                      color: Colors.white,
                     ),
                   ),
                 ),

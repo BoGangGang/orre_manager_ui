@@ -119,7 +119,7 @@ class _StoreScreenBody extends ConsumerWidget {
                           style: TextStyle(
                             fontFamily: 'Dovemayo_gothic',
                             fontSize: 24,
-                            color: Colors.white,
+                            color: Color(0xFFE6F4FE),
                           ),
                         ),
                         SizedBox(width: 10), // 간격 조절
@@ -146,7 +146,6 @@ class _StoreScreenBody extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 15),
                   Row(
                     children: [
                       Expanded(
@@ -204,7 +203,10 @@ class _StoreScreenBody extends ConsumerWidget {
                             );
                           },
                           child: Image.asset(
-                              'assets/images/button/waiting adding.png'),
+                            'assets/images/button/waiting adding.png',
+                            width: 30,
+                            height: 30,
+                          ),
                         ),
                       ),
                     ],

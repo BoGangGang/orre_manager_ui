@@ -12,12 +12,17 @@ class CustomAlertDialog {
   static Widget build(
       {required BuildContext context, required String title, required text}) {
     return AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+      ),
       title: Text(
         title,
         style: TextStyle(
           fontFamily: 'Dovemayo_gothic',
-          fontSize: 16,
+          fontSize: 24,
           fontWeight: FontWeight.bold,
+          color: Color.fromARGB(255, 83, 107, 118),
         ),
       ),
       content: Text(
@@ -25,22 +30,35 @@ class CustomAlertDialog {
         textAlign: TextAlign.center,
         softWrap: true,
         style: TextStyle(
-          fontFamily: 'Dovemayo_gothic',
-          fontSize: 16,
-        ),
+            fontFamily: 'Dovemayo_gothic',
+            fontSize: 20,
+            color: Color.fromARGB(255, 83, 107, 118)),
       ),
       actions: <Widget>[
-        TextButton(
+        Container(
+          width: double.infinity, // 버튼을 AlertDialog의 가로 길이에 맞추기 위해
+          child: TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text(
-              '확인',
-              style: TextStyle(
-                fontFamily: 'Dovemayo_gothic',
-                fontSize: 12,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.0),
+                color: Color(0xFF72AAD8),
               ),
-            )),
+              padding: EdgeInsets.symmetric(vertical: 10),
+              alignment: Alignment.center,
+              child: Text(
+                '확인',
+                style: TextStyle(
+                  fontFamily: 'Dovemayo_gothic',
+                  fontSize: 20,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

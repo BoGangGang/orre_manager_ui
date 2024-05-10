@@ -23,10 +23,10 @@ class MenuBottom extends StatelessWidget {
         }
       },
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'waiting'),
+        BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Waiting'),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(
-            icon: Icon(Icons.space_dashboard), label: 'table'),
+            icon: Icon(Icons.space_dashboard), label: 'Table'),
       ],
       selectedItemColor: Color(0xFF72AAD8),
       unselectedItemColor: Color(0xFFDFDFDF),
